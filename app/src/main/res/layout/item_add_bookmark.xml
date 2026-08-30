@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Button xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/add_bookmark_button"
+
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+
+    android:layout_margin="8dp"
+
+    android:text="+ Add Bookmark"
+    android:textColor="#FFFFFF"
+    android:textSize="13sp"
+    android:textStyle="bold"
+    android:textAllCaps="false"
+
+    android:gravity="center"
+
+    android:paddingStart="14dp"
+    android:paddingEnd="14dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
+
+    android:minWidth="0dp"
+    android:minHeight="0dp"
+
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:clickable="true"
+
+    android:background="@drawable/add_bookmark_bg" />

@@ -22,18 +22,26 @@ class MainActivity : AppCompatActivity() {
     private lateinit var urlEditText: EditText
     private lateinit var gobutton: Button
     private var currentSection = Section.HOME
+    private lateinit var contentTitle: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+
+
         navHome = findViewById(R.id.nav_home)
         navHistory = findViewById(R.id.nav_history)
         navBookmarks = findViewById(R.id.nav_bookmarks)
         navDownloads = findViewById(R.id.nav_downloads)
-        grid = findViewById(R.id.content_grid)
         urlEditText = findViewById(R.id.url_edit_text)
         gobutton = findViewById(R.id.go_button)
+        contentTitle = findViewById(R.id.content_title)
+
+        grid = findViewById(R.id.content_grid)
+        grid.clipToPadding = false
+        grid.clipChildren = false
+        grid.setPadding(30, 30, 30, 30) // Give the glow space to breathe
 
         gobutton.setOnClickListener {
             loadFromEditText()
@@ -55,6 +63,8 @@ class MainActivity : AppCompatActivity() {
 
         navHome.requestFocus()
         showSection(Section.HOME)
+
+
     }
 
     override fun onResume() {
@@ -88,18 +98,51 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
+
     private fun showSection(section: Section) {
+
         currentSection = section
+
         val items: List<Bookmark> = when (section) {
-            Section.HOME -> BookmarkStore.getAll(this) + addTile
-            Section.BOOKMARKS -> BookmarkStore.getAll(this) + addTile
-            Section.HISTORY -> HistoryStore.getAll(this).ifEmpty {
-                listOf(Bookmark("No history yet", "action://none"))
+
+            Section.HOME -> {
+                contentTitle.text = "Home"
+                BookmarkStore.getAll(this)
             }
-            Section.DOWNLOADS -> DownloadStore.getAll(this).ifEmpty {
-                listOf(Bookmark("No downloads yet", "action://none"))
+
+            Section.HISTORY -> {
+                contentTitle.text = "History"
+
+                HistoryStore.getAll(this).ifEmpty {
+                    listOf(
+                        Bookmark(
+                            "No history yet",
+                            "action://none"
+                        )
+                    )
+                }
+            }
+
+            Section.BOOKMARKS -> {
+                contentTitle.text = "Bookmarks"
+                BookmarkStore.getAll(this) + addTile
+            }
+
+            Section.DOWNLOADS -> {
+                contentTitle.text = "Downloads"
+
+                DownloadStore.getAll(this).ifEmpty {
+                    listOf(
+                        Bookmark(
+                            "No downloads yet",
+                            "action://none"
+                        )
+                    )
+                }
             }
         }
+
         adapter.update(items)
     }
 

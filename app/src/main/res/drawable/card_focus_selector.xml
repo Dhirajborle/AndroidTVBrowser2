@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Focused: Cyan Glow -->
+    <item android:state_focused="true">
+        <shape android:shape="rectangle">
+            <solid android:color="#26FFFFFF" /> <!-- 15% transparent Cyan overlay -->
+            <corners android:radius="12dp" />
+            <stroke
+                android:width="3dp"
+                android:color="#FFFFFF" />
+        </shape>
+    </item>
+
+    <!-- Normal: Clean Dark Slate -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#262626" />
+            <corners android:radius="12dp" />
+            <stroke
+                android:width="1dp"
+                android:color="#1AFFFFFF" />
+        </shape>
+    </item>
+</selector>

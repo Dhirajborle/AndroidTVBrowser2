@@ -3,6 +3,7 @@ package com.example.tvbrowser
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -12,13 +13,31 @@ import java.io.File
 class BookmarkGridAdapter(
     private var items: List<Bookmark>,
     private val onClick: (Bookmark) -> Unit
-) : RecyclerView.Adapter<BookmarkGridAdapter.CardHolder>() {
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    // 1. Update ViewHolder to include the ImageView and fix names
+    companion object {
+        private const val TYPE_BOOKMARK = 0
+        private const val TYPE_ADD = 1
+    }
+
+    // Normal bookmark card
     class CardHolder(view: View) : RecyclerView.ViewHolder(view) {
         val title: TextView = view.findViewById(R.id.card_title)
         val url: TextView = view.findViewById(R.id.card_url)
-        val thumbnail: ImageView = view.findViewById(R.id.card_thumbnail) // Ensure this ID exists in XML
+        val thumbnail: ImageView = view.findViewById(R.id.card_thumbnail)
+    }
+
+    // Add Bookmark button
+    class AddHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val button: Button = view.findViewById(R.id.add_bookmark_button)
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        return if (items[position].url == "action://add") {
+            TYPE_ADD
+        } else {
+            TYPE_BOOKMARK
+        }
     }
 
     fun update(newItems: List<Bookmark>) {
@@ -26,40 +45,95 @@ class BookmarkGridAdapter(
         notifyDataSetChanged()
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_bookmark_card, parent, false)
-        return CardHolder(view)
-    }
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int
+    ): RecyclerView.ViewHolder {
 
-    override fun onBindViewHolder(holder: CardHolder, position: Int) {
-        val item = items[position]
-        holder.title.text = item.title
-        holder.url.text = item.url
+        val inflater = LayoutInflater.from(parent.context)
 
-        // DEBUG LOG
-        android.util.Log.d("TVBrowser", "Loading thumbnail for ${item.title}: ${item.thumbnailPath}")
+        return if (viewType == TYPE_ADD) {
 
-        if (!item.thumbnailPath.isNullOrEmpty()) {
-            val imgFile = File(item.thumbnailPath)
-            if (imgFile.exists()) {
-                holder.thumbnail.load(imgFile) {
-                    crossfade(true)
-                    placeholder(R.drawable.ic_web_placeholder)
-                    error(R.drawable.ic_web_placeholder)
-                }
-            } else {
-                holder.thumbnail.setImageResource(R.drawable.ic_web_placeholder)
-            }
+            val view = inflater.inflate(
+                R.layout.item_add_bookmark,
+                parent,
+                false
+            )
+
+            AddHolder(view)
+
         } else {
-            holder.thumbnail.setImageResource(R.drawable.ic_web_placeholder)
-        }
 
-        // 4. Handle D-pad clicks for Android TV
-        holder.itemView.setOnClickListener {
-            onClick(item)
+            val view = inflater.inflate(
+                R.layout.item_bookmark_card,
+                parent,
+                false
+            )
+
+            CardHolder(view)
         }
     }
 
-    override fun getItemCount() = items.size
+    override fun onBindViewHolder(
+        holder: RecyclerView.ViewHolder,
+        position: Int
+    ) {
+
+        val item = items[position]
+
+        if (holder is AddHolder) {
+
+            holder.button.setOnClickListener {
+                onClick(item)
+            }
+
+            holder.button.setOnFocusChangeListener { view, hasFocus ->
+                view.isSelected = hasFocus
+            }
+
+        } else if (holder is CardHolder) {
+
+            holder.title.text = item.title
+            holder.url.text = item.url
+
+            android.util.Log.d(
+                "TVBrowser",
+                "Loading thumbnail for ${item.title}: ${item.thumbnailPath}"
+            )
+
+            if (!item.thumbnailPath.isNullOrEmpty()) {
+
+                val imgFile = File(item.thumbnailPath)
+
+                if (imgFile.exists()) {
+
+                    holder.thumbnail.load(imgFile) {
+                        crossfade(true)
+                        placeholder(R.drawable.ic_web_placeholder)
+                        error(R.drawable.ic_web_placeholder)
+                    }
+
+                } else {
+
+                    holder.thumbnail.setImageResource(
+                        R.drawable.ic_web_placeholder
+                    )
+                }
+
+            } else {
+
+                holder.thumbnail.setImageResource(
+                    R.drawable.ic_web_placeholder
+                )
+            }
+
+            holder.itemView.setOnClickListener {
+                onClick(item)
+            }
+        }
+    }
+
+    override fun getItemCount(): Int {
+        return items.size
+    }
 }
